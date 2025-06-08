@@ -4,6 +4,7 @@ import './App.css';
 function App() {
   const [task, setTask] = useState('');
   const [todos, setTodos] = useState([]);
+  const [filter, setFilter] = useState('all');
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -12,16 +13,23 @@ function App() {
     setTask('');
   };
 
-  const toggleComplete = (index) => {
-    const newTodos = [...todos];
-    newTodos[index].completed = !newTodos[index].completed;
-    setTodos(newTodos);
+  const toggleComplete = (clickedTodo) => {
+    const updatedTodos = todos.map(todo =>
+      todo === clickedTodo ? { ...todo, completed: !todo.completed } : todo
+    );
+    setTodos(updatedTodos);
   };
 
-  const deleteTodo = (index) => {
-    const newTodos = todos.filter((_, i) => i !== index);
-    setTodos(newTodos);
+  const deleteTodo = (clickedTodo) => {
+    const updatedTodos = todos.filter(todo => todo !== clickedTodo);
+    setTodos(updatedTodos);
   };
+
+  const filteredTodos = todos.filter((todo) => {
+    if (filter === 'active') return !todo.completed;
+    if (filter === 'completed') return todo.completed;
+    return true;
+  });
 
 
   return (
@@ -38,11 +46,17 @@ function App() {
         <button type="submit">Add</button>
       </form>
 
+      <div style={{ marginBottom: '1rem' }}>
+        <button onClick={() => setFilter('all')}>All</button>
+        <button onClick={() => setFilter('active')}>Active</button>
+        <button onClick={() => setFilter('completed')}>Completed</button>
+      </div>
+
       <ul>
-        {todos.map((todo, index) => (
-          <li key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        {filteredTodos.map((todo) => (
+          <li key={todo.text} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span
-              onClick={() => toggleComplete(index)}
+              onClick={() => toggleComplete(todo)}
               style={{
                 textDecoration: todo.completed ? 'line-through' : 'none',
                 cursor: 'pointer',
@@ -51,11 +65,10 @@ function App() {
             >
               {todo.text}
             </span>
-            <button onClick={() => deleteTodo(index)} style={{ marginLeft: '1rem', background: 'red', color: 'white', border: 'none', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>
+            <button onClick={() => deleteTodo(todo)} style={{ marginLeft: '1rem', background: 'red', color: 'white', border: 'none', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>
               Delete
             </button>
           </li>
-
         ))}
       </ul>
     </div>

@@ -4,6 +4,8 @@ import './App.css';
 function App() {
   const [task, setTask] = useState('');
   const [filter, setFilter] = useState('all');
+  const [editTodo, setEditTodo] = useState(null);
+  const [editText, setEditText] = useState('');
   const [todos, setTodos] = useState(() => {
     const saved = localStorage.getItem('todos');
     return saved ? JSON.parse(saved) : [];
@@ -38,6 +40,20 @@ function App() {
     localStorage.setItem('todos', JSON.stringify(todos));
   }, [todos]);
 
+  const startEdit = (todo) => {
+    setEditTodo(todo);
+    setEditText(todo.text);
+  };
+
+  const saveEdit = (todo) => {
+    const updatedTodos = todos.map(t =>
+      t === todo ? { ...t, text: editText.trim() || t.text } : t
+    );
+    setTodos(updatedTodos);
+    setEditTodo(null);
+    setEditText('');
+  };
+
 
   return (
     <div className="App">
@@ -61,20 +77,36 @@ function App() {
 
       <ul>
         {filteredTodos.map((todo) => (
-          <li key={todo.text} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span
-              onClick={() => toggleComplete(todo)}
-              style={{
-                textDecoration: todo.completed ? 'line-through' : 'none',
-                cursor: 'pointer',
-                flex: 1
-              }}
-            >
-              {todo.text}
-            </span>
-            <button onClick={() => deleteTodo(todo)} style={{ marginLeft: '1rem', background: 'red', color: 'white', border: 'none', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>
-              Delete
-            </button>
+          <li key={todo.text} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            {editTodo === todo ? (
+              <>
+                <input
+                  type="text"
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  style={{ flex: 1 }}
+                />
+                <button onClick={() => saveEdit(todo)}>Save</button>
+                <button onClick={() => setEditTodo(null)}>Cancel</button>
+              </>
+            ) : (
+              <>
+                <span
+                  onClick={() => toggleComplete(todo)}
+                  style={{
+                    textDecoration: todo.completed ? 'line-through' : 'none',
+                    cursor: 'pointer',
+                    flex: 1
+                  }}
+                >
+                  {todo.text}
+                </span>
+                <button onClick={() => startEdit(todo)}>Edit</button>
+                <button onClick={() => deleteTodo(todo)} style={{ background: 'red', color: 'white' }}>
+                  Delete
+                </button>
+              </>
+            )}
           </li>
         ))}
       </ul>

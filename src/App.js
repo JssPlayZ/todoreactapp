@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
   const [task, setTask] = useState('');
-  const [todos, setTodos] = useState([]);
   const [filter, setFilter] = useState('all');
+  const [todos, setTodos] = useState(() => {
+    const saved = localStorage.getItem('todos');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -30,6 +33,10 @@ function App() {
     if (filter === 'completed') return todo.completed;
     return true;
   });
+
+  useEffect(() => {
+    localStorage.setItem('todos', JSON.stringify(todos));
+  }, [todos]);
 
 
   return (

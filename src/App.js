@@ -13,8 +13,16 @@ function App() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!task.trim()) return;
-    setTodos([...todos, { text: task, completed: false }]);
+    const trimmed = task.trim();
+    if (!trimmed) return;
+
+    const isDuplicate = todos.some(todo => todo.text.toLowerCase() === trimmed.toLowerCase());
+    if (isDuplicate) {
+      alert("This task already exists!");
+      return;
+    }
+
+    setTodos([...todos, { text: trimmed, completed: false }]);
     setTask('');
   };
 
@@ -46,8 +54,20 @@ function App() {
   };
 
   const saveEdit = (todo) => {
+    const trimmed = editText.trim();
+    if (!trimmed) return;
+
+    const isDuplicate = todos.some(t =>
+      t.text.toLowerCase() === trimmed.toLowerCase() && t !== todo
+    );
+
+    if (isDuplicate) {
+      alert("A task with this name already exists!");
+      return;
+    }
+
     const updatedTodos = todos.map(t =>
-      t === todo ? { ...t, text: editText.trim() || t.text } : t
+      t === todo ? { ...t, text: trimmed } : t
     );
     setTodos(updatedTodos);
     setEditTodo(null);
